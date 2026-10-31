@@ -1,5 +1,15 @@
 # Changelog / 更新紀錄
 
+## 1.0 build 7
+
+- Replace automatic Root reboot with a non-cancelable manual-reboot notice.
+- Add an active Shizuku status test that restores and hides selected tasks, then checks the system recent-task list after both transitions.
+- Remove “/ Personal Space” from the header.
+
+- Root 首次啟用改成不可取消的手動重啟提示，不再提供重啟按鈕。
+- 新增 Shizuku 主動狀態檢測，實際往返恢復與隱藏並讀取系統最近任務。
+- 移除頂部「／個人空間」。
+
 ## 1.0 build 6
 
 - Make the Root reboot command compatible with KernelSU paths and Android power-control commands, with actionable failure status.

@@ -4,19 +4,19 @@
 
 An Android LSPosed module that hides selected apps from the recent-apps list without actively removing their tasks or stopping the apps.
 
-**Version: 1.0 build 6** · Package: `tw.local.cardhide` · Android versionCode: `6`
+**Version: 1.0 build 7** · Package: `tw.local.cardhide` · Android versionCode: `7`
 
-Build 6 fixes KernelSU reboot commands, automatically reconnects and reapplies saved settings when Shizuku returns, and adds a two-column landscape layout. After a device reboot, wireless-debugging Shizuku must still be started first; enabled settings are restored when Shizuku becomes available.
+Build 7 removes automatic Root reboot, shows a non-cancelable manual-reboot notice on first enable, adds an active Shizuku round-trip test, and removes “/ Personal Space” from the header.
 
 ## Activation and compatibility
 
-Light/dark dialogs now use opaque surfaces and a dimmed backdrop. First enabling LSPosed offers reboot guidance and a button with a second confirmation.
+Light/dark dialogs use opaque surfaces and a dimmed backdrop. First enabling LSPosed shows a non-cancelable notice requiring a manual reboot through the device power menu.
 
 **Root / LSPosed** retains the device-tested backend. **Shizuku without root (experimental)** uses wireless debugging with shell UID 2000. Start Shizuku, select this backend, authorize/connect, then enable hiding. No activation reboot is required.
 
-The ROM must expose AOSP Android 17's `WindowContainerTransaction.setTaskForceExcludedFromRecents` and grant shell `MANAGE_ACTIVITY_TASKS`. A HyperOS version number alone does not establish compatibility. The app checks actual interfaces and permissions and reports unsupported ROMs. It never substitutes task removal or force-stop. **Physical-device verification is pending.**
+The ROM must expose `WindowContainerTransaction.setTaskForceExcludedFromRecents` and grant shell `MANAGE_ACTIVITY_TASKS`. A HyperOS version number alone does not establish compatibility. The app checks actual interfaces and permissions and reports unsupported ROMs. It never substitutes task removal or force-stop.
 
-The daemon checks running tasks about once per second; a new card may briefly appear. Closing the settings UI does not intentionally stop it. After a device reboot, start Shizuku again; when its service becomes available, the app automatically reconnects and reapplies saved enabled settings. Applied-task counts report successful system calls, not launcher visual verification.
+The daemon checks running tasks about once per second. After selecting and opening a target app, **Check feature status** briefly restores and hides it again, verifying that the system recent-task list changes both ways. If the test reports system-level success while the HyperOS launcher still shows a card, the launcher is using a cache or private OEM list; use Root / LSPosed. After reboot, Shizuku still has to be started first.
 
 Before changing backends or uninstalling, disable hiding and wait for the restored status. If the daemon dies, existing flags may remain until tasks are recreated or the device reboots. Original forced-exclusion flags are not exposed for reading; do not combine this experimental backend with another task-exclusion tool.
 
@@ -44,7 +44,7 @@ Development targets HyperOS. Compatibility with every Android release or custom 
 
 ## Download and install
 
-Download and install [CardHide-1.0-build6.apk](downloads/CardHide-1.0-build6.apk). The following steps apply to LSPosed mode:
+Download and install [CardHide-1.0-build7.apk](downloads/CardHide-1.0-build7.apk). The following steps apply to LSPosed mode:
 
 1. Install the APK.
 2. Enable CardHide (後台卡片隱藏) in LSPosed.

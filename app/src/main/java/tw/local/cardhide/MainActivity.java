@@ -214,7 +214,7 @@ public final class MainActivity extends Activity {
         LinearLayout heading = new LinearLayout(this);
         heading.setGravity(Gravity.CENTER_VERTICAL);
         LinearLayout titles = column();
-        titles.addView(label("CARD HIDE  /  個人空間", 11, muted));
+        titles.addView(label("CARD HIDE", 11, muted));
         titles.addView(label("HyperOS後台卡片隱藏", 23, ink));
         heading.addView(titles, new LinearLayout.LayoutParams(0, -2, 1));
         TextView settings = pill("外觀  ⚙", false);
@@ -273,7 +273,7 @@ public final class MainActivity extends Activity {
             if (!save()) {
                 enabled = old;
                 updatingMaster = true; button.setChecked(old); updatingMaster = false;
-            } else if (checked && !shellMode && !appearance.getBoolean("reboot_guide_seen", false)) {
+            } else if (checked && !shellMode && !appearance.getBoolean("reboot_guide_seen_v7", false)) {
                 showRebootGuide();
             }
             filter();
@@ -288,6 +288,9 @@ public final class MainActivity extends Activity {
             TextView connect = pill("連線／授權 Shizuku", false);
             connect.setOnClickListener(v -> shell.connect(true));
             addSpace(controls, connect, 8);
+            TextView check = pill("檢測功能狀態", false);
+            check.setOnClickListener(v -> shell.check());
+            addSpace(controls, check, 8);
         } else activationStatus = null;
         permissionButton = pill("取得應用清單  ↗", false);
         permissionButton.setOnClickListener(v -> showListPermission());
@@ -583,7 +586,7 @@ public final class MainActivity extends Activity {
 
     private void showHelp() {
         showDialog(new AlertDialog.Builder(this).setTitle("使用說明 · 1.0")
-                .setMessage("第一頁勾選應用後，會移到第二頁「已隱藏」。左右滑動或點分頁切換；第二頁取消勾選即可恢復卡片。\n\n在 LSPosed 啟用模組、作用域選「系統框架／android」並重開機。設定變更後，等約 1 秒再進入最近任務。\n\nLSPosed 隱藏邏輯沿用 0.1.0。Shizuku 請先用無線偵錯啟動並授權，再開啟開關；需 ROM 支援 Android 17 任務排除介面，尚待實機驗證。重開機後需重新啟動 Shizuku 並套用設定，無需為啟用 Shizuku 重開機。停用開關會恢復卡片，卸載前請先停用。兩種方式都不關閉應用、不保證永久保活。使用者已回報 0.1.0 在小米 Pad 8 Pro／OS 4.0.0.44／KernelSU 32680-5／LSPosed 2.21 正常生效。\n\n外觀設定只影響本應用。跟隨系統模式會隨系統深淺色切換。選擇的圖片縮放後保存在本機，不需要相簿讀取權限。\n\n停用模組並重開機可完全恢復原始行為。")
+                .setMessage("第一頁勾選應用後，會移到第二頁「已隱藏」。左右滑動或點分頁切換；第二頁取消勾選即可恢復卡片。\n\n在 LSPosed 啟用模組、作用域選「系統框架／android」並手動重開機。設定變更後，等約 1 秒再進入最近任務。\n\nShizuku 請先用無線偵錯啟動並授權，再開啟開關。選好應用並開啟其中一個後，可點「檢測功能狀態」；檢測會短暫恢復再重新隱藏，用系統最近任務清單確認功能是否真的生效。若顯示「系統層正常」但澎湃桌面仍顯示卡片，代表桌面使用快取或廠商私有清單，此 Shizuku 路徑無法保證隱藏，請改用 Root / LSPosed。\n\n停用開關會恢復卡片，卸載前請先停用。兩種方式都不關閉應用、不保證永久保活。使用者已回報 LSPosed 隱藏核心在小米 Pad 8 Pro／OS 4.0.0.44／KernelSU 32680-5／LSPosed 2.21 正常生效。\n\n外觀設定只影響本應用。跟隨系統模式會隨系統深淺色切換。選擇的圖片縮放後保存在本機，不需要相簿讀取權限。")
                 .setPositiveButton("知道了", null));
     }
 
@@ -607,44 +610,14 @@ public final class MainActivity extends Activity {
     }
 
     private void showRebootGuide() {
-        appearance.edit().putBoolean("reboot_guide_seen", true).apply();
-        showDialog(new AlertDialog.Builder(this).setTitle("首次啟用需要重新啟動")
-                .setMessage("請先在 LSPosed 啟用「HyperOS後台卡片隱藏」，作用域勾選「系統框架／android」，再重新啟動裝置，讓隱藏功能載入。\n\n按鈕會要求 Root 權限；若未授權，請使用裝置電源選單手動重開機。若已完成此步驟，可選「稍後」。")
-                .setNegativeButton("稍後", null)
-                .setPositiveButton("重新啟動裝置", (d, w) -> confirmReboot()));
-    }
-
-    private void confirmReboot() {
-        showDialog(new AlertDialog.Builder(this).setTitle("立即重新啟動？")
-                .setMessage("裝置將立即重開機。請先儲存其他應用中尚未保存的內容。")
-                .setNegativeButton("取消", null)
-                .setPositiveButton("立即重新啟動", (d, w) -> {
-                    toast("正在要求 Root 權限以重新啟動…");
-                    new Thread(() -> {
-                        try {
-                            String su = findSuBinary();
-                            String reboot = "/system/bin/setprop sys.powerctl reboot; sleep 2; "
-                                    + "/system/bin/svc power reboot; sleep 2; /system/bin/reboot";
-                            Process command = new ProcessBuilder(su, "-c", reboot).redirectErrorStream(true).start();
-                            if (!command.waitFor(45, java.util.concurrent.TimeUnit.SECONDS)) {
-                                command.destroy(); throw new java.io.IOException("等待 Root 授權逾時");
-                            }
-                            if (command.exitValue() != 0) throw new java.io.IOException("Root 命令回傳 " + command.exitValue());
-                            runOnUiThread(() -> { if (!isDestroyed()) toast("重啟命令已送出；若裝置未重啟，請檢查 KernelSU 授權"); });
-                        } catch (Exception error) {
-                            String reason = error.getMessage();
-                            runOnUiThread(() -> { if (!isDestroyed()) toast("未能自動重啟：" + reason + "。請在 KernelSU 授權本應用"); });
-                        }
-                    }, "user-requested-reboot").start();
-                }));
-    }
-
-    private String findSuBinary() throws java.io.IOException {
-        String[] candidates = {"/system/bin/su", "/system/xbin/su", "/sbin/su"};
-        for (String candidate : candidates) if (new File(candidate).canExecute()) return candidate;
-        // KernelSU normally exposes su through PATH even when no fixed path is visible to the app.
-        if (new File("/system/bin").isDirectory()) return "su";
-        throw new java.io.IOException("找不到 su");
+        appearance.edit().putBoolean("reboot_guide_seen_v7", true).apply();
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("請手動重新啟動裝置")
+                .setMessage("首次啟用 Root / LSPosed 模式後，必須手動重新啟動裝置，系統框架才會載入隱藏功能。\n\n請確認 LSPosed 已啟用「HyperOS後台卡片隱藏」，作用域勾選「系統框架／android」，再使用裝置電源選單重新啟動。\n\n此提示無法關閉；裝置重新啟動後會自動消失。")
+                .create();
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+        skinDialog(dialog);
     }
 
     private ColorStateList tint() {

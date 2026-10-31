@@ -1,9 +1,7 @@
-# 1.0 build 6 — HyperOS後台卡片隱藏
+# 1.0 build 7 — HyperOS後台卡片隱藏
 
-修正 KernelSU 自動重啟命令；Shizuku 服務重新啟動後會自動重連並恢復已儲存的隱藏設定；橫屏改成雙欄版面，控制區可捲動，應用清單不再被壓縮。
+首次啟用 Root / LSPosed 後不再提供自動重啟按鈕，改為不可取消的手動重啟提示。Shizuku 新增「檢測功能狀態」，會短暫恢復並重新隱藏已選任務，再讀取系統最近任務確認兩次變化。頂部「／個人空間」已移除。
 
-裝置重開機後，無 Root 模式仍須先透過無線偵錯啟動 Shizuku。Shizuku 可用後，應用會重新套用先前已啟用的設定。
+若檢測顯示「系統層正常」，但澎湃桌面仍顯示卡片，代表桌面使用快取或廠商私有任務清單；此時應使用 Root / LSPosed。
 
-Fix KernelSU reboot commands, automatically reconnect and restore settings when Shizuku returns, and use a two-column landscape layout. After a device reboot, wireless-debugging Shizuku must still be started first.
-
-See README.md / README.en.md for setup, compatibility and recovery limitations.
+Root first-enable now shows a non-cancelable manual-reboot notice. Shizuku gains an active restore/hide round-trip status test. The “/ Personal Space” header text is removed.

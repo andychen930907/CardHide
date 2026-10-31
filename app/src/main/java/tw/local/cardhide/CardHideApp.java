@@ -25,7 +25,7 @@ public final class CardHideApp extends Application {
     @Override public void onCreate() {
         super.onCreate();
         args = new Shizuku.UserServiceArgs(new ComponentName(this, ShellService.class))
-                .daemon(true).processNameSuffix("cardhide_shell").version(6);
+                .daemon(true).processNameSuffix("cardhide_shell").version(7);
         Shizuku.addBinderReceivedListenerSticky(received, main);
         Shizuku.addBinderDeadListener(dead, main);
     }

@@ -4,19 +4,19 @@
 
 適用於 LSPosed 的 Android 模組：隱藏自行選取的應用在「最近任務」中的卡片，不主動移除任務或關閉應用。
 
-**目前版本：1.0 build 6** · 套件名稱：`tw.local.cardhide` · Android versionCode：`6`
+**目前版本：1.0 build 7** · 套件名稱：`tw.local.cardhide` · Android versionCode：`7`
 
-build 6 修正 KernelSU 自動重啟、Shizuku 服務恢復後自動重連及重新套用設定，並加入橫屏雙欄版面。裝置重開機後仍須先以無線偵錯啟動 Shizuku；Shizuku 可用後會自動讀取已啟用的設定。
+build 7 移除 Root 自動重啟，首次啟用改顯示不可取消的手動重啟提示；加入 Shizuku 主動往返檢測，並移除頂部「／個人空間」。
 
 ## 啟動方式與相容性
 
-修正預設深／淺色對話框穿透，加入不透明底色和遮罩。首次啟用 LSPosed 會提供重開機提醒及按鈕，經再次確認才請求 Root 重新啟動。
+修正預設深／淺色對話框穿透，加入不透明底色和遮罩。首次啟用 LSPosed 會顯示不可取消的提示，使用者必須透過裝置電源選單手動重啟。
 
 **Root / LSPosed** 保留已實機驗證的隱藏方式。**Shizuku 無 Root（實驗性）**：先使用無線偵錯啟動 Shizuku，再於本應用選擇 Shizuku 啟動方式、連線授權並開啟隱藏。此模式不需要為啟用功能而重開機。
 
-Shizuku 需要 ROM 提供 AOSP Android 17 的 `WindowContainerTransaction.setTaskForceExcludedFromRecents` 及 shell 的 `MANAGE_ACTIVITY_TASKS` 權限。HyperOS 版本號本身不能保證相容，應用會檢查實際介面與權限。不支援時顯示原因，不會改成移除任務或強制停止。**此模式尚未實機驗證。**
+Shizuku 需要 ROM 提供 `WindowContainerTransaction.setTaskForceExcludedFromRecents` 及 shell 的 `MANAGE_ACTIVITY_TASKS` 權限。HyperOS 版本號本身不能保證相容，應用會檢查實際介面與權限。不支援時顯示原因，不會改成移除任務或強制停止。
 
-服務約每秒檢查執行中的任務，新卡片可能短暫出現；關閉設定畫面不會主動停止服務。裝置重開機後須先重新啟動 Shizuku，服務可用時會自動連線並套用已儲存的啟用設定。「已套用任務數」代表系統呼叫成功，仍須確認最近任務的實際畫面。
+服務約每秒檢查執行中的任務，新卡片可能短暫出現。選好應用並開啟其中一個後，點「檢測功能狀態」會短暫恢復再重新隱藏，確認系統最近任務是否跟著改變。顯示「系統層正常」但澎湃桌面仍有卡片時，代表桌面使用快取或廠商私有清單，應改用 Root / LSPosed。裝置重開機後仍須先啟動 Shizuku。
 
 切換方式或卸載前，請先關閉隱藏開關並等待「卡片已恢復」。若服務被終止，已套用標記可能持續到任務重建或裝置重開機。系統未提供讀取原本強制排除狀態的介面，請勿與其他任務排除工具同時使用此實驗模式。
 
@@ -44,7 +44,7 @@ Shizuku 需要 ROM 提供 AOSP Android 17 的 `WindowContainerTransaction.setTas
 
 ## 下載與安裝
 
-下載並安裝 [CardHide-1.0-build6.apk](downloads/CardHide-1.0-build6.apk)。以下為 LSPosed 模式步驟：
+下載並安裝 [CardHide-1.0-build7.apk](downloads/CardHide-1.0-build7.apk)。以下為 LSPosed 模式步驟：
 
 1. 安裝 APK。
 2. 在 LSPosed 啟用「後台卡片隱藏」。

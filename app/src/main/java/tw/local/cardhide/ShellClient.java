@@ -21,7 +21,7 @@ final class ShellClient {
     private volatile String[] desiredPackages = new String[0];
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable poll = new Runnable() {
-        public void run() { if (!closed) { query(false, false, new String[0]); handler.postDelayed(this, 2000); } }
+        public void run() { if (!closed) { query(ShellService.STATUS, false, new String[0]); handler.postDelayed(this, 2000); } }
     };
     private final Shizuku.OnRequestPermissionResultListener permission = (code, result) -> {
         if (code == 71) { if (result == PackageManager.PERMISSION_GRANTED) connect(false); else report("Shizuku 授權被拒絕"); }
@@ -38,7 +38,7 @@ final class ShellClient {
         public void onServiceConnected(ComponentName name, IBinder binder) {
             remote = binder;
             report("Shizuku 已重新連線，正在恢復隱藏設定…");
-            query(true, desiredEnabled, desiredPackages.clone());
+            query(ShellService.CONFIGURE, desiredEnabled, desiredPackages.clone());
             handler.removeCallbacks(poll); handler.postDelayed(poll, 2000);
         }
         public void onServiceDisconnected(ComponentName name) {
@@ -49,7 +49,7 @@ final class ShellClient {
     ShellClient(Activity activity, Listener listener) {
         this.activity = activity; this.listener = listener;
         args = new Shizuku.UserServiceArgs(new ComponentName(activity, ShellService.class))
-                .daemon(true).processNameSuffix("cardhide_shell").version(6);
+                .daemon(true).processNameSuffix("cardhide_shell").version(7);
         Shizuku.addRequestPermissionResultListener(permission);
         Shizuku.addBinderReceivedListenerSticky(binderReceived, handler);
         Shizuku.addBinderDeadListener(binderDead, handler);
@@ -68,20 +68,25 @@ final class ShellClient {
         } catch (RuntimeException e) { report("Shizuku 連線失敗：" + e.getMessage()); }
     }
     boolean connected() { return remote != null && remote.isBinderAlive(); }
+    void check() {
+        if (!connected()) { report("尚未連線 Shizuku，無法檢測"); return; }
+        report("正在重新套用並檢測系統最近任務…");
+        query(ShellService.CHECK, desiredEnabled, desiredPackages.clone());
+    }
     void configure(boolean enabled, Set<String> packages) {
         desiredEnabled = enabled;
         desiredPackages = new HashSet<>(packages).toArray(new String[0]);
-        query(true, desiredEnabled, desiredPackages.clone());
+        query(ShellService.CONFIGURE, desiredEnabled, desiredPackages.clone());
     }
-    private void query(boolean config, boolean enabled, String[] packages) {
+    private void query(int code, boolean enabled, String[] packages) {
         IBinder binder = remote;
-        if (binder == null) { if (config) report("尚未連線 Shizuku，設定尚未套用"); return; }
+        if (binder == null) { if (code != ShellService.STATUS) report("尚未連線 Shizuku，設定尚未套用"); return; }
         worker.execute(() -> {
             Parcel data = Parcel.obtain(), reply = Parcel.obtain();
             try {
                 data.writeInterfaceToken(ShellService.DESCRIPTOR);
-                if (config) { data.writeInt(enabled ? 1 : 0); data.writeInt(android.os.Process.myUid() / 100000); data.writeStringArray(packages); }
-                if (!binder.transact(config ? ShellService.CONFIGURE : ShellService.STATUS, data, reply, 0))
+                if (code == ShellService.CONFIGURE) { data.writeInt(enabled ? 1 : 0); data.writeInt(android.os.Process.myUid() / 100000); data.writeStringArray(packages); }
+                if (!binder.transact(code, data, reply, 0))
                     throw new IllegalStateException("服務版本不相容");
                 reply.readException(); reply.readInt(); report(reply.readString());
             } catch (Exception e) { report("Shizuku 操作失敗：" + e.getMessage()); }

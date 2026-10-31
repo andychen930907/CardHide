@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="tw.local.cardhide" android:versionCode="6" android:versionName="1.0">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="tw.local.cardhide" android:versionCode="7" android:versionName="1.0">
     <uses-sdk android:minSdkVersion="31" android:targetSdkVersion="32" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" />
