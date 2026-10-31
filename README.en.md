@@ -8,7 +8,7 @@ An Android LSPosed module that hides selected apps from the recent-apps list wit
 
 Build 6 fixes KernelSU reboot commands, automatically reconnects and reapplies saved settings when Shizuku returns, and adds a two-column landscape layout. After a device reboot, wireless-debugging Shizuku must still be started first; enabled settings are restored when Shizuku becomes available.
 
-## Build 5 activation and compatibility
+## Activation and compatibility
 
 Light/dark dialogs now use opaque surfaces and a dimmed backdrop. First enabling LSPosed offers reboot guidance and a button with a second confirmation.
 
@@ -16,7 +16,7 @@ Light/dark dialogs now use opaque surfaces and a dimmed backdrop. First enabling
 
 The ROM must expose AOSP Android 17's `WindowContainerTransaction.setTaskForceExcludedFromRecents` and grant shell `MANAGE_ACTIVITY_TASKS`. A HyperOS version number alone does not establish compatibility. The app checks actual interfaces and permissions and reports unsupported ROMs. It never substitutes task removal or force-stop. **Physical-device verification is pending.**
 
-The daemon checks running tasks about once per second; a new card may briefly appear. Closing the settings UI does not intentionally stop it. After reboot, restart Shizuku, reconnect and reapply; if the switch is on, turn it off and on. Applied-task counts report successful system calls, not launcher visual verification.
+The daemon checks running tasks about once per second; a new card may briefly appear. Closing the settings UI does not intentionally stop it. After a device reboot, start Shizuku again; when its service becomes available, the app automatically reconnects and reapplies saved enabled settings. Applied-task counts report successful system calls, not launcher visual verification.
 
 Before changing backends or uninstalling, disable hiding and wait for the restored status. If the daemon dies, existing flags may remain until tasks are recreated or the device reboots. Original forced-exclusion flags are not exposed for reading; do not combine this experimental backend with another task-exclusion tool.
 
@@ -44,7 +44,7 @@ Development targets HyperOS. Compatibility with every Android release or custom 
 
 ## Download and install
 
-Install the supplied `CardHide-1.0-build6.apk`. The following steps apply to LSPosed mode:
+Download and install [CardHide-1.0-build6.apk](downloads/CardHide-1.0-build6.apk). The following steps apply to LSPosed mode:
 
 1. Install the APK.
 2. Enable CardHide (後台卡片隱藏) in LSPosed.
@@ -138,8 +138,11 @@ The Xposed API JAR is compile-only and is not bundled in the APK; LSPosed suppli
 ```text
 app/src/main/AndroidManifest.xml
 app/src/main/java/tw/local/cardhide/
+  CardHideApp.java    # Restore after Shizuku restarts
   MainActivity.java   # Management UI, permissions and appearance
   RecentHook.java     # LSPosed system-framework hook
+  ShellClient.java    # Shizuku connection and status
+  ShellService.java   # Shell-identity task exclusion
   Selection.java      # Package and Android-user filtering
   GlassSurface.java   # Glass-inspired rendering
   CropActivity.java   # Interactive image crop UI

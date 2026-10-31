@@ -8,7 +8,7 @@
 
 build 6 修正 KernelSU 自動重啟、Shizuku 服務恢復後自動重連及重新套用設定，並加入橫屏雙欄版面。裝置重開機後仍須先以無線偵錯啟動 Shizuku；Shizuku 可用後會自動讀取已啟用的設定。
 
-## build 5：啟動方式與相容性
+## 啟動方式與相容性
 
 修正預設深／淺色對話框穿透，加入不透明底色和遮罩。首次啟用 LSPosed 會提供重開機提醒及按鈕，經再次確認才請求 Root 重新啟動。
 
@@ -16,7 +16,7 @@ build 6 修正 KernelSU 自動重啟、Shizuku 服務恢復後自動重連及重
 
 Shizuku 需要 ROM 提供 AOSP Android 17 的 `WindowContainerTransaction.setTaskForceExcludedFromRecents` 及 shell 的 `MANAGE_ACTIVITY_TASKS` 權限。HyperOS 版本號本身不能保證相容，應用會檢查實際介面與權限。不支援時顯示原因，不會改成移除任務或強制停止。**此模式尚未實機驗證。**
 
-服務約每秒檢查執行中的任務，新卡片可能短暫出現；關閉設定畫面不會主動停止服務。重開機後須重新啟動 Shizuku、連線並重新套用開關；已開啟時請先關閉再開啟。「已套用任務數」代表系統呼叫成功，仍須確認最近任務的實際畫面。
+服務約每秒檢查執行中的任務，新卡片可能短暫出現；關閉設定畫面不會主動停止服務。裝置重開機後須先重新啟動 Shizuku，服務可用時會自動連線並套用已儲存的啟用設定。「已套用任務數」代表系統呼叫成功，仍須確認最近任務的實際畫面。
 
 切換方式或卸載前，請先關閉隱藏開關並等待「卡片已恢復」。若服務被終止，已套用標記可能持續到任務重建或裝置重開機。系統未提供讀取原本強制排除狀態的介面，請勿與其他任務排除工具同時使用此實驗模式。
 
@@ -44,7 +44,7 @@ Shizuku 需要 ROM 提供 AOSP Android 17 的 `WindowContainerTransaction.setTas
 
 ## 下載與安裝
 
-安裝隨附的 `CardHide-1.0-build6.apk`。以下為 LSPosed 模式步驟：
+下載並安裝 [CardHide-1.0-build6.apk](downloads/CardHide-1.0-build6.apk)。以下為 LSPosed 模式步驟：
 
 1. 安裝 APK。
 2. 在 LSPosed 啟用「後台卡片隱藏」。
@@ -138,8 +138,11 @@ Xposed API JAR 僅用於編譯，不包含在 APK 中；執行期由 LSPosed 提
 ```text
 app/src/main/AndroidManifest.xml
 app/src/main/java/tw/local/cardhide/
+  CardHideApp.java    # Shizuku 重啟後自動恢復
   MainActivity.java   # 管理頁、權限、外觀
   RecentHook.java     # LSPosed 系統框架掛鉤
+  ShellClient.java    # Shizuku 連線與狀態
+  ShellService.java   # shell 身分任務排除服務
   Selection.java      # 套件與使用者篩選
   GlassSurface.java   # 玻璃外觀
   CropActivity.java   # 圖片裁切介面
