@@ -1,0 +1,12 @@
+<resources>
+    <style name="CardHideLight" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:colorAccent">#2055A5</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowActionModeOverlay">true</item>
+    </style>
+    <style name="CardHideDark" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:colorAccent">#B8D4FF</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowActionModeOverlay">true</item>
+    </style>
+</resources>

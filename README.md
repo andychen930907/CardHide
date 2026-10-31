@@ -158,4 +158,3 @@ build.py
 - [Apple 材質設計](https://developer.apple.com/design/human-interface-guidelines/materials)
 
 本專案獨立實作，未包含原參考應用的 APK、程式碼或資產。
-

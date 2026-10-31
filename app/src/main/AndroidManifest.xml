@@ -1,0 +1,21 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="tw.local.cardhide" android:versionCode="6" android:versionName="1.0">
+    <uses-sdk android:minSdkVersion="31" android:targetSdkVersion="32" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" />
+    <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
+    <application android:name=".CardHideApp" android:label="HyperOS後台卡片隱藏" android:theme="@style/CardHideLight" android:allowBackup="false" android:supportsRtl="true" android:icon="@drawable/ic_app">
+        <meta-data android:name="xposedmodule" android:value="true" />
+        <meta-data android:name="xposeddescription" android:value="隱藏所選應用的最近任務卡片，不移除任務。支援個人化主題與雙頁管理。" />
+        <meta-data android:name="xposedminversion" android:value="93" />
+        <meta-data android:name="xposedsharedprefs" android:value="true" />
+        <meta-data android:name="xposedscope" android:resource="@array/xposed_scope" />
+        <provider android:name="rikka.shizuku.ShizukuProvider" android:authorities="tw.local.cardhide.shizuku" android:exported="true" android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" android:multiprocess="false" />
+        <activity android:name=".CropActivity" android:exported="false" />
+        <activity android:name=".MainActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
